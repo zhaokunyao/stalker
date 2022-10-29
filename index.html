@@ -5,21 +5,44 @@
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title></title>
     <script type="text/javascript">
-    	
+		function pushToCloud(json) {
+			
+		}
+		
+    	function getLocation() {
+			console.log("getting location");
+			// getCurrentPosition api needs nearly 22 seconds to finish, sometimes.
+    		plus.geolocation.getCurrentPosition(function(data){
+    			json = JSON.stringify(data);
+				console.log(json);
+				pushToCloud(json);
+    		});
+    	}
+		
    		document.addEventListener('plusready', function(){
    			//console.log("所有plus api都应该在此事件发生后调用，否则会出现plus is undefined。")
-   			
+			console.log("ready");
+			interval = 30;
+			setInterval(getLocation,  interval * 1000);
+
    		});
    		
+
+
 		// 打开新Webview窗口  
-function openNewWebview(){  
-  var wv = plus.webview.create('http://www.dcloud.io/');  
-  wv.show();  
-}
+		function openNewWebview(){  
+		  // var wv = plus.webview.create('http://www.dcloud.io/');  
+		  // wv.show();  
+		  console.log("clicked");
+		  // xxx();
+		}
 
     </script>
 </head>
 <body>
+	<!--
 	<button onclick="openNewWebview();">open it</button>
+	-->
+	<a onclick="openNewWebview();">The stalker is watching you.</a>
 </body>
 </html>
