@@ -3,10 +3,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<script src="js/jquery-3.6.1.min.js"></script>
     <title></title>
     <script type="text/javascript">
 		function pushToCloud(json) {
-			
+			var domain = 'http://101.101.209.230';
+			var url = domain + "/zhao/stalker.php";
+			$.ajax({
+				type: "POST",
+				url: url,
+				contentType: "application/json; charset=utf-8",
+				data: json,
+				dataType: "json",
+				success: function (data) {
+					console.log(data);
+					console.log(data.error_code);
+					console.log(data.error_msg);
+					console.log("success:", data);
+				},
+				error: function (err) {
+					console.log("error:", err);
+				}
+			})
 		}
 		
     	function getLocation() {
